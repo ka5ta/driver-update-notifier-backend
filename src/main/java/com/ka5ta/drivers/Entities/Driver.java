@@ -1,9 +1,10 @@
 package com.ka5ta.drivers.Entities;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
-@Table(name="students")
+@Table(name="driver")
 public class Driver {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -12,11 +13,15 @@ public class Driver {
     private String version;
     private String link;
 
-    public Driver(long id, String name, String version, String link) {
+    //@Column(name = "created_on")
+    private final Timestamp createdOn;
+
+    public Driver(long id, String name, String version, String link, Timestamp createdOn) {
         this.id = id;
         this.name = name;
         this.version = version;
         this.link = link;
+        this.createdOn = createdOn;
     }
 
     public long getId() {

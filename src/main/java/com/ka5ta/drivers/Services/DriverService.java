@@ -9,6 +9,7 @@ import com.ka5ta.drivers.Scrapers.MsiLinkScraper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +30,55 @@ public class DriverService {
     private ProductRepository productRepository;
 
 
+    public Product getProductFromLink(String supportURL) throws Exception {
 
-    public List<Driver> getDriversForProduct(String supportURL) throws Exception {
+        Product product = productRepository.findBySupportLink(supportURL);
+        if (Objects.isNull(product)) {
+            product = new Product(
+                    supportURL,
+                    productLink,
+                    "product test name",
+                    "product test manufacturer",
+                    new ArrayList<>(),
+                    null
+            );
+        }
+
+
+        if (product.getLastScraped() == null || !product.getLastScraped().toLocalDateTime().toLocalDate().isEqual(LocalDate.now())) {
+            List<Driver> scrapedDrivers = getScraper(supportURL).getDownloads(supportURL, product);
+            product.setLastScraped(new Timestamp(System.currentTimeMillis()));
+            Product toUpdateProduct = product;
+
+            scrapedDrivers.forEach(scrapedDriver -> {
+                String scrapedVendorId = scrapedDriver.getVendorId();
+                List<Driver> existingDrivers = toUpdateProduct.getDrivers();
+
+                Optional<Driver> matchingDriver = existingDrivers.stream()
+                        .filter(driver -> driver.getVendorId().equals(scrapedVendorId))
+                        .findAny();
+
+                if(matchingDriver.isEmpty()){
+                    existingDrivers.add(scrapedDriver);
+                }else{
+                    //todo if any information changed
+                }
+            });
+            productRepository.save(toUpdateProduct);
+            return toUpdateProduct;
+            //drivers = toUpdateProduct.getDrivers();
+        }
+
+
+        if(product.getLastScraped().toLocalDateTime().toLocalDate().isEqual(LocalDate.now())) {
+            return product;
+        }
+
+        return product;
+    }
+
+
+/*    public List<Driver> getDriversForProduct(String supportURL) throws Exception {
 
         Product product = productRepository.findBySupportLink(supportURL);
         if (Objects.isNull(product)) {
@@ -75,7 +123,7 @@ public class DriverService {
         }
 
         return drivers;
-    }
+    }*/
 
     private LinkScraper getScraper(String supportURL) {
         if (asusLinkScraper.isLinkSupported(supportURL)) {
@@ -85,51 +133,5 @@ public class DriverService {
         } else {
             return null;
         }
-    }
-
-    public Product getProductFromLink(String supportURL) throws Exception {
-
-        Product product = productRepository.findBySupportLink(supportURL);
-        if (Objects.isNull(product)) {
-            product = new Product(
-                    supportURL,
-                    productLink,
-                    "product test name",
-                    "product test manufacturer",
-                    new ArrayList<>(),
-                    null
-            );
-        }
-
-        if (product.getLastScraped() == null || !product.getLastScraped().isEqual(LocalDate.now())) {
-            List<Driver> scrapedDrivers = getScraper(supportURL).getDownloads(supportURL, product);
-            product.setLastScraped(LocalDate.now());
-            Product toUpdateProduct = product;
-
-            scrapedDrivers.forEach(scrapedDriver -> {
-                String scrapedVendorId = scrapedDriver.getVendorId();
-                List<Driver> existingDrivers = toUpdateProduct.getDrivers();
-
-                Optional<Driver> matchingDriver = existingDrivers.stream()
-                        .filter(driver -> driver.getVendorId().equals(scrapedVendorId))
-                        .findAny();
-
-                if(matchingDriver.isEmpty()){
-                    existingDrivers.add(scrapedDriver);
-                }else{
-                    //todo if any information changed
-                }
-            });
-            productRepository.save(toUpdateProduct);
-            return toUpdateProduct;
-            //drivers = toUpdateProduct.getDrivers();
-        }
-
-
-        if (product.getLastScraped().isEqual(LocalDate.now())) {
-            return product;
-        }
-
-        return product;
     }
 }

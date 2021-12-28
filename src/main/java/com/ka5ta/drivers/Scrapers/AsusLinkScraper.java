@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -46,12 +48,14 @@ public class AsusLinkScraper implements LinkScraper {
             driver.setVersion(downloadJson.getString("Version"));
             driver.setOperatingSys(downloadJson.getString("OS-Version"));
             driver.setReleaseDate(parseStringToDate(downloadJson.getString("ReleaseDate")));
-            String downloadLink = downloadJson.getJSONObject("DownloadUrl").getString("Global");
-            driver.setFileSizeBytes(getDownloadSizeInMB(downloadLink));
-            driver.setDownloadLink(downloadLink);
             driver.setVendorId(downloadJson.getString("Id"));
             driver.setProduct(product);
             drivers.add(driver);
+            //todo Encode download link
+            String downloadLink = downloadJson.getJSONObject("DownloadUrl").getString("Global");
+            String encodedDownloadLink = URLEncoder.encode(downloadLink, StandardCharsets.UTF_8.name());
+            driver.setFileSizeBytes(getDownloadSizeInMB(downloadLink));
+            driver.setDownloadLink(downloadLink);
         }
         return drivers;
     }

@@ -5,6 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +24,7 @@ public class Product  {
     private String manufacturer;
     @OneToMany(mappedBy="product", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
     private List<Driver> drivers;
-    private LocalDate lastScraped;
+    private Timestamp lastScraped;
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "id")
@@ -33,7 +34,7 @@ public class Product  {
 
     public Product(){};
 
-    public Product(long id, String supportLink, String productLink, String name, String manufacturer, List<Driver> drivers, LocalDate lastScraped, List<EmailProfile> emailProfiles) {
+    public Product(long id, String supportLink, String productLink, String name, String manufacturer, List<Driver> drivers, Timestamp lastScraped, List<EmailProfile> emailProfiles) {
         this.id = id;
         this.supportLink = supportLink;
         this.productLink = productLink;
@@ -44,7 +45,7 @@ public class Product  {
         this.emailProfiles = emailProfiles;
     }
 
-    public Product(String supportLink, String productLink, String name, String manufacturer, List<Driver> drivers, LocalDate lastScraped) {
+    public Product(String supportLink, String productLink, String name, String manufacturer, List<Driver> drivers, Timestamp lastScraped) {
         this.supportLink = supportLink;
         this.productLink = productLink;
         this.name = name;
@@ -101,11 +102,11 @@ public class Product  {
         this.drivers = drivers;
     }
 
-    public LocalDate getLastScraped() {
+    public Timestamp getLastScraped() {
         return lastScraped;
     }
 
-    public void setLastScraped(LocalDate lastScraped) {
+    public void setLastScraped(Timestamp lastScraped) {
         this.lastScraped = lastScraped;
     }
 

@@ -1,12 +1,12 @@
 package com.ka5ta.drivers.Entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 
@@ -30,10 +30,19 @@ public class Driver {
     private String downloadLink;
     private LocalDate releaseDate;
     private long fileSizeBytes;
-
-    //@Column(name = "created_on")
     @CreatedDate
-    private LocalDate createdOn;
+    private Timestamp updatedOn;
+
+    @PrePersist
+    protected void onCreate() {
+        updatedOn = new Timestamp(System.currentTimeMillis());;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedOn = new Timestamp(System.currentTimeMillis());;
+    }
+
 
     public Driver(){
     };
@@ -51,7 +60,7 @@ public class Driver {
     }
 
 
-    public Driver(String name, String vendorId, Product product, String version, String operatingSys, LocalDate releaseDate, Long fileSizeBytes, String downloadLink, LocalDate createdOn) {
+    public Driver(String name, String vendorId, Product product, String version, String operatingSys, LocalDate releaseDate, Long fileSizeBytes, String downloadLink, Timestamp createdOn) {
         this.name = name;
         this.vendorId = vendorId;
         this.product = product;
@@ -60,7 +69,7 @@ public class Driver {
         this.releaseDate = releaseDate;
         this.fileSizeBytes = fileSizeBytes;
         this.downloadLink = downloadLink;
-        this.createdOn = createdOn;
+        this.updatedOn = createdOn;
     }
 
     public long getId() {
@@ -145,7 +154,7 @@ public class Driver {
                 ", downloadLink='" + downloadLink + '\'' +
                 ", releaseDate=" + releaseDate +
                 ", fileSizeBytes=" + fileSizeBytes +
-                ", createdOn=" + createdOn +
+                ", createdOn=" + updatedOn +
                 '}';
     }
 }

@@ -4,6 +4,7 @@ import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
@@ -13,7 +14,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 

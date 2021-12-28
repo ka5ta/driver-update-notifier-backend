@@ -36,3 +36,8 @@ build/
 /.mvn/wrapper/MavenWrapperDownloader.java
 /mvnw
 /mvnw.cmd
+
+### Sensitive Data ###
+src/main/resources/application.properties
+pom.xml
+.gitignore

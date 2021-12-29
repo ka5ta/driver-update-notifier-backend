@@ -2,6 +2,8 @@ package com.ka5ta.drivers.Services;
 
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
+import com.ka5ta.drivers.Records.ScrapedResults;
+import com.ka5ta.drivers.Records.Scraper;
 import com.ka5ta.drivers.Repositories.ProductRepository;
 import com.ka5ta.drivers.Scrapers.AsusLinkScraper;
 import com.ka5ta.drivers.Scrapers.LinkScraper;
@@ -46,8 +48,14 @@ public class DriverService {
 
 
         if (product.getLastScraped() == null || !product.getLastScraped().toLocalDateTime().toLocalDate().isEqual(LocalDate.now())) {
-            List<Driver> scrapedDrivers = getScraper(supportURL).getDownloads(supportURL, product);
+            Scraper scraper = getScraper(supportURL);
+            ScrapedResults scrapedResults = scraper.linkScraper().performScrape(supportURL);
+            //Getting drivers list
+            List<Driver> scrapedDrivers = scrapedResults.drivers();
+            //Updating product
             product.setLastScraped(new Timestamp(System.currentTimeMillis()));
+            product.setName(scrapedResults.productName());
+            product.setManufacturer(scraper.productManufacturer());
             Product toUpdateProduct = product;
 
             scrapedDrivers.forEach(scrapedDriver -> {
@@ -125,13 +133,15 @@ public class DriverService {
         return drivers;
     }*/
 
-    private LinkScraper getScraper(String supportURL) {
+    private Scraper getScraper(String supportURL) {
         if (asusLinkScraper.isLinkSupported(supportURL)) {
-            return asusLinkScraper;
+            return new Scraper(asusLinkScraper, "ASUS");
         } else if (msiLinkScraper.isLinkSupported(supportURL)) {
-            return msiLinkScraper;
+            return new Scraper(msiLinkScraper, "MSI");
         } else {
             return null;
         }
     }
+
+
 }

@@ -2,6 +2,7 @@ package com.ka5ta.drivers.Scrapers;
 
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
+import com.ka5ta.drivers.Records.ScrapedResults;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -17,7 +18,8 @@ import java.util.concurrent.TimeoutException;
 
 public interface LinkScraper {
      Boolean isLinkSupported (String link);
-     List<Driver> getDownloads(String productLink, Product product) throws Exception;
+     //List<Driver> getDownloads(String productLink, Product product) throws Exception;
+     ScrapedResults performScrape (String productLink) throws Exception;
 
 
      default Long getDownloadSizeInMB(String downloadLink) throws IOException {

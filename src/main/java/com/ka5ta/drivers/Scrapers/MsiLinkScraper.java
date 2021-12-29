@@ -2,6 +2,7 @@ package com.ka5ta.drivers.Scrapers;
 
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
+import com.ka5ta.drivers.Records.ScrapedResults;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -42,33 +43,27 @@ public class MsiLinkScraper implements LinkScraper {
     }
 
     @Override
-    public List<Driver> getDownloads(String productLink, Product product)
+    public ScrapedResults performScrape(String supportLink)
             throws Exception {
-        String downloadsHtml = getDownloadsHtml(productLink);
+        MSIProductDetails msiProductDetails = getMSIProductDetails(supportLink);
+        String downloadsHtml = getDownloadsHtml(msiProductDetails.productId());
         List<Element> driverContainers =  getDriverContainers(downloadsHtml);
 
         List<Driver> drivers = new ArrayList<>();
         for (Element driverContainer: driverContainers) {
             Driver driver = extractDriver(driverContainer);
-            driver.setProduct(product);
             drivers.add(driver);
         }
 //        Element driverInfo = driverContainers.stream().map(this::extractDriverInfo).collect(Collectors.toList());
 
-        return drivers;
+        return new ScrapedResults(drivers, msiProductDetails.productName(), "MSI");
     }
 
 
-    public String getDownloadsHtml(String productLink)
+    public String getDownloadsHtml(String productId)
             throws ExecutionException, InterruptedException, IOException {
 
-        if(!productLink.startsWith("https://www.msi.com/")){
-            throw new UnsupportedLinkException(productLink);
-        }
-
-        String testProductLink = "productId";
-        String productId = getProductId(productLink);
-        String supportLink = "https://www.msi.com/product_ajax/get_support_item";
+        String msiLink = "https://www.msi.com/product_ajax/get_support_item";
 
         //      POST     //
         // Create a Http Client
@@ -79,20 +74,17 @@ public class MsiLinkScraper implements LinkScraper {
         params.add(new BasicNameValuePair("type", "driver"));
         params.add(new BasicNameValuePair("product_id", productId));
         // Execute GET request
-        HttpPost httpPostRequest = new HttpPost(supportLink);
+        HttpPost httpPostRequest = new HttpPost(msiLink);
         httpPostRequest.setEntity(new UrlEncodedFormEntity(params));
         // Get response
         CloseableHttpResponse httpResponse = httpClient.execute(httpPostRequest);
         String response = EntityUtils.toString(httpResponse.getEntity());
 
         return response;
-
     }
 
-    private String getProductId (String supportLink) throws
+    private MSIProductDetails getMSIProductDetails(String supportLink) throws
             ExecutionException, InterruptedException {
-        // Create a client
-        HttpClient client = HttpClient.newHttpClient();
 
         // Create a GET request
         HttpRequest request = HttpRequest
@@ -110,13 +102,21 @@ public class MsiLinkScraper implements LinkScraper {
         // Get response body as String
         String response = httpFutureResponse.get().body();
 
-        // Find matching text for product_id
-        String regex = "product_id:(\\s+)?(\\d+),";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(response.toLowerCase());
-        matcher.find();
+        // Find matching text for product_id and find product name
+        String regexProductId = "product_id:(\\s+)?(\\d+),";
+        String regexProductName = "title:(\\s+)?\'(.*)\',";
 
-        return matcher.group(2);
+        String resultProductId = findRegexResult(regexProductId, 2, response);
+        String resultProductName = findRegexResult(regexProductName, 2, response);
+
+        return new MSIProductDetails(resultProductId, resultProductName);
+    }
+
+    private String findRegexResult (String regex, int groupNumber, String searchText) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(searchText);
+        matcher.find();
+    return matcher.group(groupNumber);
     }
 
     private List<Element> getDriverContainers(String downloadsHtml) {
@@ -190,5 +190,7 @@ public class MsiLinkScraper implements LinkScraper {
         return formattedDate;
     }
 
+
 }
 
+record MSIProductDetails(String productId, String productName) { }

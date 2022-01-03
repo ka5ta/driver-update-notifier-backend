@@ -39,13 +39,13 @@ public class DriverService {
             product = new Product(
                     supportURL,
                     productLink,
+                    "product test id",
                     "product test name",
                     "product test manufacturer",
                     new ArrayList<>(),
                     null
             );
         }
-
 
         if (product.getLastScraped() == null || !product.getLastScraped().toLocalDateTime().toLocalDate().isEqual(LocalDate.now())) {
             Scraper scraper = getScraper(supportURL);
@@ -56,14 +56,15 @@ public class DriverService {
             product.setLastScraped(new Timestamp(System.currentTimeMillis()));
             product.setName(scrapedResults.productName());
             product.setManufacturer(scraper.productManufacturer());
+            product.setVendorId(scrapedResults.vendorId());
             Product toUpdateProduct = product;
 
             scrapedDrivers.forEach(scrapedDriver -> {
-                String scrapedVendorId = scrapedDriver.getVendorId();
+                String scrapedDriverDriverId= scrapedDriver.getDriverId();
                 List<Driver> existingDrivers = toUpdateProduct.getDrivers();
 
                 Optional<Driver> matchingDriver = existingDrivers.stream()
-                        .filter(driver -> driver.getVendorId().equals(scrapedVendorId))
+                        .filter(driver -> driver.getDriverId().equals(scrapedDriverDriverId))
                         .findAny();
 
                 if(matchingDriver.isEmpty()){
@@ -72,9 +73,13 @@ public class DriverService {
                     //todo if any information changed
                 }
             });
+
+
+            List<Driver> drivers = toUpdateProduct.getDrivers();
+            drivers.forEach(driver->driver.setProduct(toUpdateProduct));
+
             productRepository.save(toUpdateProduct);
             return toUpdateProduct;
-            //drivers = toUpdateProduct.getDrivers();
         }
 
 

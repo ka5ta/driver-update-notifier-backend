@@ -20,6 +20,7 @@ public class Product  {
     private long id;
     private String supportLink;
     private String productLink;
+    private String vendorId;
     private String name;
     private String manufacturer;
     @OneToMany(mappedBy="product", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
@@ -34,10 +35,11 @@ public class Product  {
 
     public Product(){};
 
-    public Product(long id, String supportLink, String productLink, String name, String manufacturer, List<Driver> drivers, Timestamp lastScraped, List<EmailProfile> emailProfiles) {
+    public Product(long id, String supportLink, String productLink,String vendorId, String name, String manufacturer, List<Driver> drivers, Timestamp lastScraped, List<EmailProfile> emailProfiles) {
         this.id = id;
         this.supportLink = supportLink;
         this.productLink = productLink;
+        this.vendorId = vendorId;
         this.name = name;
         this.manufacturer = manufacturer;
         this.drivers = drivers;
@@ -45,13 +47,22 @@ public class Product  {
         this.emailProfiles = emailProfiles;
     }
 
-    public Product(String supportLink, String productLink, String name, String manufacturer, List<Driver> drivers, Timestamp lastScraped) {
+    public Product(String supportLink, String productLink, String vendorId, String name, String manufacturer, List<Driver> drivers, Timestamp lastScraped) {
         this.supportLink = supportLink;
         this.productLink = productLink;
+        this.vendorId = vendorId;
         this.name = name;
         this.manufacturer = manufacturer;
         this.drivers = drivers;
         this.lastScraped = lastScraped;
+    }
+
+    public String getVendorId() {
+        return vendorId;
+    }
+
+    public void setVendorId(String vendorId) {
+        this.vendorId = vendorId;
     }
 
     public long getId() {

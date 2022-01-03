@@ -2,6 +2,7 @@ package com.ka5ta.drivers.Scrapers;
 
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
+import com.ka5ta.drivers.Records.ScrapedResults;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -38,9 +39,11 @@ public class AsusLinkScraper implements LinkScraper {
     }
 
     @Override
-    public List<Driver> getDownloads(String productLink, Product product) throws Exception {
+    public ScrapedResults performScrape(String productLink) throws Exception {
         List<Driver> drivers = new ArrayList<>();
-        List<JSONObject> downloadsJson = getDownloadsJson(productLink);
+
+        AsusProductDetails asusProductDetails = getAsusProductDetails(productLink);
+        List<JSONObject> downloadsJson = getDownloadsJson(productLink, asusProductDetails);
 
         for (JSONObject downloadJson:downloadsJson) {
             Driver driver = new Driver();
@@ -48,22 +51,23 @@ public class AsusLinkScraper implements LinkScraper {
             driver.setVersion(downloadJson.getString("Version"));
             driver.setOperatingSys(downloadJson.getString("OS-Version"));
             driver.setReleaseDate(parseStringToDate(downloadJson.getString("ReleaseDate")));
-            driver.setVendorId(downloadJson.getString("Id"));
-            driver.setProduct(product);
+            driver.setDriverId(downloadJson.getString("Id"));
+            //driver.setProduct(product);
             drivers.add(driver);
             //todo Encode download link
             String downloadLink = downloadJson.getJSONObject("DownloadUrl").getString("Global");
-            String encodedDownloadLink = URLEncoder.encode(downloadLink, StandardCharsets.UTF_8.name());
+            //String encodedDownloadLink = URLEncoder.encode(downloadLink, StandardCharsets.UTF_8.name());
             driver.setFileSizeBytes(getDownloadSizeInMB(downloadLink));
             driver.setDownloadLink(downloadLink);
         }
-        return drivers;
+        return new ScrapedResults(drivers, asusProductDetails.productName(),"ASUS", asusProductDetails.productId());
     }
 
-    private List<JSONObject> getDownloadsJson (String productLink)
+    private List<JSONObject> getDownloadsJson (String productLink, AsusProductDetails asusProductDetails)
             throws JSONException, URISyntaxException, IOException, ExecutionException, InterruptedException, ParseException {
         //Get OS systems by specific card
-        Map<String, String> operatingSystemIDs = getOperatingSystemIDs(productLink);
+
+        Map<String, String> operatingSystemIDs = getOperatingSystemIDs(asusProductDetails);
         List<JSONObject> downloadsJson = new ArrayList<>();
 
         for(Map.Entry<String, String> entry:operatingSystemIDs.entrySet() ){
@@ -80,8 +84,8 @@ public class AsusLinkScraper implements LinkScraper {
     private List<JSONObject> getDownloadsJSONByOS(String productLink, String operatingSystemKey, String operatingSystemValue)
             throws IOException, ExecutionException, InterruptedException, URISyntaxException, ParseException, JSONException {
 
-        String driverID = getDriverID(productLink);
-        String driverModel = getDriverModel(productLink);
+        String productId = getAsusProductDetails(productLink).productId();
+        String productModel = getAsusProductDetails(productLink).productName();
 
 
         //      Execute GET request    //
@@ -89,8 +93,8 @@ public class AsusLinkScraper implements LinkScraper {
         List<NameValuePair> params = new ArrayList();
         params.add(new BasicNameValuePair("website", "global"));
         params.add(new BasicNameValuePair("osid", operatingSystemKey));
-        params.add(new BasicNameValuePair("pdid", driverID));
-        params.add(new BasicNameValuePair("model", driverModel));
+        params.add(new BasicNameValuePair("pdid", productId));
+        params.add(new BasicNameValuePair("model", productModel));
 
         String allDriversLink = "https://www.asus.com/support/api/product.asmx/GetPDDrivers";
 
@@ -137,20 +141,24 @@ public class AsusLinkScraper implements LinkScraper {
         return response;
     }
 
-    private String getDriverID(String productLink)
+    private AsusProductDetails getAsusProductDetails(String productLink)
             throws URISyntaxException, IOException, ExecutionException, InterruptedException {
 
         String TestProductLink = "https://www.asus.com/Motherboards-Components/Motherboards/PRIME/PRIME-Z690-A-CSM/";
         String response = Jsoup.connect(productLink).get().html();
 
-        String regex = "\"sku\":(\\s+)?(\\d+),";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(response.toLowerCase());
-        matcher.find();
-        return matcher.group(2);
+        String regexProductId = "\"sku\":(\\s+)?(\\d+),";
+        String regexProductName = "\"@type\": \"Product\",(\\n|\\r|\\s+|\\t)\"@id\": \"(.*?)\",(\\n|\\r|\\s+|\\t)\"name\":(\\s+)?\"(.*?)\"";
+
+
+        String productId = findRegex(regexProductId, 2, response);
+        String productName = findRegex(regexProductName, 5, response);
+
+        return new AsusProductDetails(productId,productName);
     }
 
-    private Map<String, String> getOperatingSystemIDs(String productLink)
+
+    private Map<String, String> getOperatingSystemIDs(AsusProductDetails asusProductDetails)
             throws URISyntaxException, IOException, ExecutionException, InterruptedException, JSONException {
         Map<String, String> operatingSystemOptions = new HashMap<>();
 
@@ -158,8 +166,8 @@ public class AsusLinkScraper implements LinkScraper {
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("website", "global"));
-        params.add(new BasicNameValuePair("model", getDriverModel(productLink)));
-        params.add(new BasicNameValuePair("pdid", getDriverID(productLink)));
+        params.add(new BasicNameValuePair("model", asusProductDetails.productName() ));
+        params.add(new BasicNameValuePair("pdid", asusProductDetails.productId() ));
 
         String response = createGetRequest(OSlink, params);
 
@@ -182,7 +190,7 @@ public class AsusLinkScraper implements LinkScraper {
     }
 
     private String getDriverModel(String productLink) {
-        productLink = "https://www.asus.com/Motherboards-Components/Motherboards/PRIME/PRIME-Z690-A-CSM/";
+        //productLink = "https://www.asus.com/Motherboards-Components/Motherboards/PRIME/PRIME-Z690-A-CSM/";
         String[] splitedURL = productLink.split("/");
         return splitedURL[splitedURL.length-1];
     }
@@ -228,9 +236,6 @@ public class AsusLinkScraper implements LinkScraper {
         return formattedDate;
     }
 
-
-
-
-
-
 }
+
+record AsusProductDetails(String productId, String productName){};

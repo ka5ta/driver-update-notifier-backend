@@ -15,6 +15,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public interface LinkScraper {
      Boolean isLinkSupported (String link);
@@ -32,6 +34,13 @@ public interface LinkScraper {
           String downloadSize =  headResponse.getHeaders("Content-Length")[0].getValue();
 
           return Long.parseLong(downloadSize);
+     }
+
+     default String findRegex(String regex, int groupNumber, String searchText) {
+          Pattern pattern = Pattern.compile(regex);
+          Matcher matcher = pattern.matcher(searchText);
+          matcher.find();
+          return matcher.group(groupNumber);
      }
 
 

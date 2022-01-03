@@ -1,7 +1,6 @@
 package com.ka5ta.drivers.Scrapers;
 
 import com.ka5ta.drivers.Entities.Driver;
-import com.ka5ta.drivers.Entities.Product;
 import com.ka5ta.drivers.Records.ScrapedResults;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -52,11 +51,12 @@ public class MsiLinkScraper implements LinkScraper {
         List<Driver> drivers = new ArrayList<>();
         for (Element driverContainer: driverContainers) {
             Driver driver = extractDriver(driverContainer);
+            //todo does vendorID should be on vendor instead ?
             drivers.add(driver);
         }
 //        Element driverInfo = driverContainers.stream().map(this::extractDriverInfo).collect(Collectors.toList());
 
-        return new ScrapedResults(drivers, msiProductDetails.productName(), "MSI");
+        return new ScrapedResults(drivers, msiProductDetails.productName(), "MSI", msiProductDetails.productId());
     }
 
 
@@ -106,18 +106,12 @@ public class MsiLinkScraper implements LinkScraper {
         String regexProductId = "product_id:(\\s+)?(\\d+),";
         String regexProductName = "title:(\\s+)?\'(.*)\',";
 
-        String resultProductId = findRegexResult(regexProductId, 2, response);
-        String resultProductName = findRegexResult(regexProductName, 2, response);
+        String resultProductId = findRegex(regexProductId, 2, response);
+        String resultProductName = findRegex(regexProductName, 2, response);
 
         return new MSIProductDetails(resultProductId, resultProductName);
     }
 
-    private String findRegexResult (String regex, int groupNumber, String searchText) {
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(searchText);
-        matcher.find();
-    return matcher.group(groupNumber);
-    }
 
     private List<Element> getDriverContainers(String downloadsHtml) {
         // Parse HTML
@@ -154,11 +148,10 @@ public class MsiLinkScraper implements LinkScraper {
         String operatingSys = driverPairs.get("OS");
         driver.setOperatingSys(operatingSys);
 
-        //Generate vendor Id
+        //Generate driver Id
         StringBuilder sb = new StringBuilder();
         String generatedID = sb.append(title).append("-").append(version).append("-").append(downloadLink).toString();
-        driver.setVendorId(generatedID);
-
+        driver.setDriverId(generatedID);
         return driver;
     }
 

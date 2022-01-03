@@ -23,8 +23,8 @@ public class Driver {
     @JsonIdentityReference(alwaysAsId = true)
     @ManyToOne
     private Product product;
+    private String driverId;
     private String name;
-    private String vendorId;
     private String version;
     private String operatingSys;
     private String downloadLink;
@@ -47,10 +47,10 @@ public class Driver {
     public Driver(){
     };
 
-    public Driver(long id, Product product, String vendorId, String name, String version, String operatingSys, LocalDate releaseDate, Long fileSizeBytes, String downloadLink) {
+    public Driver(long id, Product product, String driverId, String name, String version, String operatingSys, LocalDate releaseDate, Long fileSizeBytes, String downloadLink) {
         this.id = id;
         this.product = product;
-        this.vendorId = vendorId;
+        this.driverId = driverId;
         this.name = name;
         this.version = version;
         this.operatingSys = operatingSys;
@@ -60,10 +60,10 @@ public class Driver {
     }
 
 
-    public Driver(String name, String vendorId, Product product, String version, String operatingSys, LocalDate releaseDate, Long fileSizeBytes, String downloadLink, Timestamp createdOn) {
+    public Driver(String name, Product product, String driverId, String version, String operatingSys, LocalDate releaseDate, Long fileSizeBytes, String downloadLink, Timestamp createdOn) {
         this.name = name;
-        this.vendorId = vendorId;
         this.product = product;
+        this.driverId = driverId;
         this.version = version;
         this.operatingSys = operatingSys;
         this.releaseDate = releaseDate;
@@ -78,14 +78,6 @@ public class Driver {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getVendorId() {
-        return vendorId;
-    }
-
-    public void setVendorId(String vendorId) {
-        this.vendorId = vendorId;
     }
 
     public String getName() {
@@ -142,6 +134,14 @@ public class Driver {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public String getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(String driverId) {
+        this.driverId = driverId;
     }
 
     @Override

@@ -35,12 +35,12 @@ public class Driver {
 
     @PrePersist
     protected void onCreate() {
-        updatedOn = new Timestamp(System.currentTimeMillis());;
+        updatedOn = new Timestamp(System.currentTimeMillis());
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedOn = new Timestamp(System.currentTimeMillis());;
+        updatedOn = new Timestamp(System.currentTimeMillis());
     }
 
 

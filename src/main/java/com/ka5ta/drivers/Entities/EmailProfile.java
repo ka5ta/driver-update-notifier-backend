@@ -1,10 +1,13 @@
 package com.ka5ta.drivers.Entities;
 
 import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,10 +22,11 @@ public class EmailProfile {
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     @ManyToMany
     private List<Product> products;
-    @CreatedDate
-    private LocalDate subscribeDate;
+    @CreationTimestamp
+    private Timestamp subscribeDate;
 
 
     public EmailProfile() {}
@@ -32,7 +36,7 @@ public class EmailProfile {
         this.products = products;
     }
 
-    public EmailProfile(Long id, String email, List<Product> products, LocalDate subscribeDate) {
+    public EmailProfile(Long id, String email, List<Product> products, Timestamp subscribeDate) {
         this.id = id;
         this.email = email;
         this.products = products;
@@ -59,11 +63,11 @@ public class EmailProfile {
         this.products = products;
     }
 
-    public LocalDate getSubscribeDate() {
+    public Timestamp getSubscribeDate() {
         return subscribeDate;
     }
 
-    public void setSubscribeDate(LocalDate subscribeDate) {
+    public void setSubscribeDate(Timestamp subscribeDate) {
         this.subscribeDate = subscribeDate;
     }
 }

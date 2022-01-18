@@ -30,7 +30,7 @@ public class Product  {
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "id")
     @JsonIdentityReference(alwaysAsId = true)
-    @ManyToMany()
+    @ManyToMany(mappedBy = "products")
     private List<EmailProfile> emailProfiles;
 
     public Product(){};

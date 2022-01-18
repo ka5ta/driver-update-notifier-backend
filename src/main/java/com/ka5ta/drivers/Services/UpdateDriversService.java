@@ -26,7 +26,8 @@ public class UpdateDriversService {
 
 //private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    @Scheduled(cron = "0 */5 * ? * *")
+    //todo schedule update drivers
+    //@Scheduled(cron = "0 */5 * ? * *")
     private void runUpdateDrivers() {
         updateDrivers();
         log.info("Drivers are now updated");

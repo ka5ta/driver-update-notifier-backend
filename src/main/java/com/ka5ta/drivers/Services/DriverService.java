@@ -1,5 +1,6 @@
 package com.ka5ta.drivers.Services;
 
+import com.ka5ta.drivers.Controllers.EmailController;
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
 import com.ka5ta.drivers.Records.ScrapedResults;
@@ -30,6 +31,8 @@ public class DriverService {
     private MsiLinkScraper msiLinkScraper;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private EmailService emailService;
 
 
     public Product getProductFromLink(String supportURL) throws Exception {
@@ -46,6 +49,8 @@ public class DriverService {
                     null
             );
         }
+
+        List<Driver> newDrivers = new ArrayList<>();
 
         if (product.getLastScraped() == null || !product.getLastScraped().toLocalDateTime().toLocalDate().isEqual(LocalDate.now())) {
             Scraper scraper = getScraper(supportURL);
@@ -69,6 +74,7 @@ public class DriverService {
 
                 if(matchingDriver.isEmpty()){
                     existingDrivers.add(scrapedDriver);
+                    newDrivers.add(scrapedDriver);
                 }else{
                     //todo if any information changed
                 }
@@ -79,11 +85,15 @@ public class DriverService {
             drivers.forEach(driver->driver.setProduct(toUpdateProduct));
 
             productRepository.save(toUpdateProduct);
+
+            // Send email with new drivers list
+           // emailService.SendEmailWithNewDriverList(toUpdateProduct, newDrivers );
             return toUpdateProduct;
         }
 
 
         if(product.getLastScraped().toLocalDateTime().toLocalDate().isEqual(LocalDate.now())) {
+           emailService.SendEmailWithNewDriverList(product, product.getDrivers() );
             return product;
         }
 

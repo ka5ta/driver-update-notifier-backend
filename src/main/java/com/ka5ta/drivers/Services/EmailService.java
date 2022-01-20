@@ -4,6 +4,7 @@ import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.EmailProfile;
 import com.ka5ta.drivers.Entities.Product;
 import com.ka5ta.drivers.Repositories.SubscriptionRepository;
+import com.ka5ta.drivers.Templates.htmlEmailTemplate;
 import j2html.tags.ContainerTag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,44 +40,24 @@ public class EmailService {
             helper.setText(body, true);
             emailSender.send(message);
 
-        }catch (MessagingException exception){
+        } catch (MessagingException exception) {
             exception.printStackTrace();
             System.out.println("Email was not sent");
         }
     }
-    public void SendEmailWithNewDriverList(Product product, List<Driver> newDrivers){
+
+    public void SendEmailWithNewDriverList(Product product, List<Driver> newDrivers) throws IOException {
 
         // Get all distribution emails for the product
         List<EmailProfile> subscriptionProfilesForProduct = subscriptionRepository.findByProducts(product);
         List<String> distributionEmails = new ArrayList<>();
-        subscriptionProfilesForProduct.forEach(emailProfile->distributionEmails.add(emailProfile.getEmail()));
+        subscriptionProfilesForProduct.forEach(emailProfile -> distributionEmails.add(emailProfile.getEmail()));
 
         // Create HTML template
         String title = "New drivers for product: " + product.getName();
 
-        String htmlDriversTable = table().with(
-                tr().with(
-                        th("Driver name"),
-                        th("Driver Download link"),
-                        th("File Size")
-                ),
-                each(newDrivers, driver -> tr().with(
-                                td(driver.getName()),
-                                td(driver.getDownloadLink()),
-                                td(driver.getFileSizeBytes().toString())
-                        )
-                )
-        ).render();
-
-
-        // Send email to the distribution list
-        for (String distributionEmail:distributionEmails) {
-            String htmlText = html(
-                    head(h3("Hello " + distributionEmail)),
-                    body("I would like to inform you that there are a new " +
-                            "drivers for "+ product.getName() + " please see below list:\\n" +
-                            htmlDriversTable)
-            ).render();
+        for (String distributionEmail : distributionEmails) {
+            String htmlText = htmlEmailTemplate.createEmail(product.getName(), newDrivers, distributionEmail);
 
             this.sendEmail(distributionEmail, title, htmlText);
         }

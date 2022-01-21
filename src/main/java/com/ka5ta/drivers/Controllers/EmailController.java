@@ -43,6 +43,11 @@ public class EmailController {
         //return new ResponseEntity(HttpStatus.CREATED);
     }
 
+    @GetMapping("/unsubscribe")
+    public void deleteEmailProfileByProduct (@RequestParam String email, @RequestParam Long productId){
+        subscriptionService.unsubscribe(email, productId);
+    }
+
 
 
 }

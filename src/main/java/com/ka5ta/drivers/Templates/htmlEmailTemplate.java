@@ -17,7 +17,7 @@ import static j2html.TagCreator.body;
 
 public class htmlEmailTemplate {
 
-    public static String createEmail(String productName, List<Driver> newDrivers, String distributionEmail) {
+    public static String createEmail(Product product, List<Driver> newDrivers, String distributionEmail) {
 
         // Body CSS style
         StringBuilder bodyStylesBuilder = new StringBuilder();
@@ -27,26 +27,42 @@ public class htmlEmailTemplate {
         // Body CSS style
         StringBuilder tableStylesBuilder = new StringBuilder();
         String tableStyle = tableStylesBuilder
-                .append("color: #000001; font-size: 13px; margin-left: auto; margin-right: auto; margin-top: 40px; ").toString();
+                .append("color: #000001; font-size: 13px; margin-left: auto; margin-right: auto; margin-top: 40px; margin-bottom: 50px; ").toString();
 
         // Logo CSS style
         StringBuilder logoBuilder = new StringBuilder();
         String logoStyle = logoBuilder
                 .append("color: #051937; " +
-                        "font-size: 30px; " +
-                        "letter-spacing: 5px; " +
-                        "background-color: rgba(0,153,204,0.1); " +
+                       "font-size: 30px; " +
+                       "letter-spacing: 5px; " +
+                       "background-color: #eaf4fa; " +
+                      "text-align: center; " +
+                       "margin: auto; " +
+                        "padding: 30px 60px; " +
+                       "font-weight: 800;" +
+                       "width: fit-content; " +
+                        "line-height: 1; ")
+                .toString();
+
+        // Button CSS style
+        StringBuilder buttonStylesBuilder = new StringBuilder();
+        String button = buttonStylesBuilder
+                .append("background-color: #bbe0ec; " +
+                        "color: rgb(255, 255, 255); " +
+                        "font-size: 13px; " +
                         "text-align: center; " +
-                        "margin-bottom:40px; " +
-                        "margin-top: 10px; " +
-                        "padding: 40px; " +
-                        "margin-right: 40px; " +
-                        "margin-left: 40px; " +
-                        "font-weight: 800; \n")
+                        "cursor: pointer; " +
+                        "border-radius: 5px;" +
+                        "text-decoration: none;" +
+                        "font-family: Helvetica, Arial, sans-serif; " +
+                        "padding: 14px 20px; " +
+                        "display: block; " +
+                        "margin: auto; " +
+                        "width: fit-content; ")
                 .toString();
 
         // Email title
-        String title = "New drivers for product: " + productName;
+        String title = "New drivers for product: " + product.getName();
 
         // User name from email
         String name = distributionEmail.toUpperCase().substring(0, distributionEmail.indexOf("@"));
@@ -57,7 +73,7 @@ public class htmlEmailTemplate {
                 div(h3("Hello " + name).withStyle("color: #000001; font-size: 23px; text-align: center; font-weight: 600; ")),
                 div(
                         span("I would like to inform you that there are a new drivers for "),
-                        span(productName).withStyle("font-weight:bold; color: rgba(0,153,204,0.8); "),
+                        span(product.getName()).withStyle("font-weight:bold; color: rgba(0,153,204,0.8); "),
                         span(" please see below list:")
                 ).withStyle(bodyStyle),
                 table().withStyle(tableStyle).with(
@@ -73,12 +89,13 @@ public class htmlEmailTemplate {
                                         td(driver.getFileSizeBytes().toString())
                                 )
                         )
-                )
+                ),
+                a("UNSUBSCRIBE").withHref("http://localhost:8080/api/unsubscribe?" + "email=" + distributionEmail + "&" + "productId=" + product.getId()).withStyle(button)
         );
 
 
         // HTML email body formatted
-        String htmlEmailTemplate = htmlTextContainer.render();
+        String htmlEmailTemplate = htmlTextContainer.renderFormatted();
         System.out.println(htmlEmailTemplate);
 
         return htmlEmailTemplate;

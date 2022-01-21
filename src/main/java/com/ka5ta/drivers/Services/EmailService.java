@@ -57,7 +57,7 @@ public class EmailService {
         String title = "New drivers for product: " + product.getName();
 
         for (String distributionEmail : distributionEmails) {
-            String htmlText = htmlEmailTemplate.createEmail(product.getName(), newDrivers, distributionEmail);
+            String htmlText = htmlEmailTemplate.createEmail(product, newDrivers, distributionEmail);
 
             this.sendEmail(distributionEmail, title, htmlText);
         }

@@ -8,6 +8,7 @@ import com.ka5ta.drivers.Repositories.SubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,5 +52,23 @@ public class SubscriptionService {
                 subscriptionRepo.save(emailProfile);
             }
         }
+    }
+
+    public void unsubscribe(String email, Long productId){
+        Product productToRemove = productRepository.findById(productId).orElseThrow();
+        EmailProfile profile = subscriptionRepo.findByEmail(email);
+
+        List<Product> profileProducts = profile.getProducts();
+        if(profileProducts.contains(productToRemove)) {
+            profileProducts.remove(productToRemove);
+            System.out.println("product "+ productToRemove.getId() + " is removed.");
+            profile.setProducts(profileProducts);
+            subscriptionRepo.save(profile);
+            System.out.println("Email profile saved");
+        }else{
+            System.out.println("There is no such product in profile");
+        }
+
+
     }
 }

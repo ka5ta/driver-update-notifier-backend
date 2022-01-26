@@ -6,6 +6,7 @@ import com.ka5ta.drivers.Records.ScrapedResults;
 import com.ka5ta.drivers.Records.Scraper;
 import com.ka5ta.drivers.Repositories.ProductRepository;
 import com.ka5ta.drivers.Scrapers.AsusLinkScraper;
+import com.ka5ta.drivers.Scrapers.AsusRogScraper;
 import com.ka5ta.drivers.Scrapers.LinkScraper;
 import com.ka5ta.drivers.Scrapers.MsiLinkScraper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class DriverService {
     private AsusLinkScraper asusLinkScraper;
     @Autowired
     private MsiLinkScraper msiLinkScraper;
+    @Autowired
+    private AsusRogScraper asusRogLinkScraper;
     @Autowired
     private ProductRepository productRepository;
 
@@ -143,6 +146,8 @@ public class DriverService {
             return new Scraper(asusLinkScraper, "ASUS");
         } else if (msiLinkScraper.isLinkSupported(supportURL)) {
             return new Scraper(msiLinkScraper, "MSI");
+        } else if (asusRogLinkScraper.isLinkSupported(supportURL)) {
+                return new Scraper(asusRogLinkScraper, "ASUS ROG");
         } else {
             return null;
         }

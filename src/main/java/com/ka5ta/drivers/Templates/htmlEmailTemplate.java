@@ -33,14 +33,14 @@ public class htmlEmailTemplate {
         StringBuilder logoBuilder = new StringBuilder();
         String logoStyle = logoBuilder
                 .append("color: #051937; " +
-                       "font-size: 30px; " +
-                       "letter-spacing: 5px; " +
-                       "background-color: #eaf4fa; " +
-                      "text-align: center; " +
-                       "margin: auto; " +
+                        "font-size: 30px; " +
+                        "letter-spacing: 5px; " +
+                        "background-color: #eaf4fa; " +
+                        "text-align: center; " +
+                        "margin: auto; " +
                         "padding: 30px 60px; " +
-                       "font-weight: 800;" +
-                       "width: fit-content; " +
+                        "font-weight: 800;" +
+                        "width: fit-content; " +
                         "line-height: 1; ")
                 .toString();
 
@@ -61,6 +61,11 @@ public class htmlEmailTemplate {
                         "width: fit-content; ")
                 .toString();
 
+        // Unsubscribe CSS style
+        StringBuilder unsubscribeStylesBuilder = new StringBuilder();
+        String unsubscribeStyle = unsubscribeStylesBuilder
+                .append("color: #000001; font-size: 9px; margin: auto; text-align: center; display:grid; align-self: center; ").toString();
+
         // Email title
         String title = "New drivers for product: " + product.getName();
 
@@ -70,9 +75,9 @@ public class htmlEmailTemplate {
         // Email container template
         ContainerTag htmlTextContainer = body(
                 div("DRIVERS SUBSCRIPTION").withStyle(logoStyle),
-                div(h3("Hello " + name).withStyle("color: #000001; font-size: 23px; text-align: center; font-weight: 600; ")),
+                div(h3("Hej " + name).withStyle("color: #000001; font-size: 23px; text-align: center; font-weight: 600; ")),
                 div(
-                        span("I would like to inform you that there are a new drivers for "),
+                        span("There are new drivers for "),
                         span(product.getName()).withStyle("font-weight:bold; color: rgba(0,153,204,0.8); "),
                         span(" please see below list:")
                 ).withStyle(bodyStyle),
@@ -90,7 +95,10 @@ public class htmlEmailTemplate {
                                 )
                         )
                 ),
-                a("UNSUBSCRIBE").withHref("http://localhost:8080/api/unsubscribe?" + "email=" + distributionEmail + "&" + "productId=" + product.getId()).withStyle(button)
+                div(
+                        span("Would you like to ").with(
+                        a("UNSUBSCRIBE").withHref("http://192.168.1.54:8080/api/unsubscribe?" + "email=" + distributionEmail + "&" + "productId=" + product.getId()).withRel("UNSUBSCRIBE").withStyle("font-weight:bold; color: rgba(0,153,204,0.8);"))
+                ).withStyle(unsubscribeStyle)
         );
 
 

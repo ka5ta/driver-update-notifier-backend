@@ -3,6 +3,7 @@ package com.ka5ta.drivers.Scrapers;
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
 import com.ka5ta.drivers.Records.ScrapedResults;
+import com.ka5ta.drivers.Utility.DownloadSizeBytesUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -55,7 +56,7 @@ public class AsusLinkScraper implements LinkScraper {
             //driver.setProduct(product);
             drivers.add(driver);
             String downloadLink = downloadJson.getJSONObject("DownloadUrl").getString("Global");
-            driver.setFileSizeBytes(getDownloadSizeInMB(downloadLink));
+            driver.setFileSizeMB(DownloadSizeBytesUtils.sizeInMB(downloadLink));
             driver.setDownloadLink(downloadLink);
         }
         return new ScrapedResults(drivers, asusProductDetails.productName(),"ASUS", asusProductDetails.productId());

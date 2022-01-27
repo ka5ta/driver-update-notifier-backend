@@ -2,6 +2,7 @@ package com.ka5ta.drivers.Scrapers;
 
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Records.ScrapedResults;
+import com.ka5ta.drivers.Utility.DownloadSizeBytesUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -133,8 +134,8 @@ public class MsiLinkScraper implements LinkScraper {
         driver.setDownloadLink(downloadLink);
 
         // Get driver download link size in MB
-        Long downloadSize = getDownloadSizeInMB(downloadLink);
-        driver.setFileSizeBytes(downloadSize);
+        double downloadSize = DownloadSizeBytesUtils.sizeInMB(downloadLink);
+        driver.setFileSizeMB(downloadSize);
 
 
         // Get driver name, version and release date. Add them to driver attributes.

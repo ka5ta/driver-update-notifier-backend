@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Records.ScrapedResults;
+import com.ka5ta.drivers.Utility.DownloadSizeBytesUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -49,7 +50,7 @@ public class AsusRogScraper extends AsusLinkScraper implements LinkScraper {
             driver.setReleaseDate(parseStringToDate(downloadJson.getString("ReleaseDate")));
             driver.setDriverId(downloadJson.getString("Id"));
             String downloadLink = downloadJson.getJSONObject("DownloadUrl").getString("Global");
-            driver.setFileSizeBytes(getDownloadSizeInMB(downloadLink));
+            driver.setFileSizeMB(DownloadSizeBytesUtils.sizeInMB(downloadLink));
             driver.setDownloadLink(downloadLink);
             drivers.add(driver);
         }

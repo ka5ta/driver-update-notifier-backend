@@ -29,7 +29,7 @@ public class Driver {
     private String operatingSys;
     private String downloadLink;
     private LocalDate releaseDate;
-    private long fileSizeBytes;
+    private double fileSizeMB;
     @CreatedDate
     private Timestamp updatedOn;
 
@@ -47,7 +47,7 @@ public class Driver {
     public Driver(){
     };
 
-    public Driver(long id, Product product, String driverId, String name, String version, String operatingSys, LocalDate releaseDate, Long fileSizeBytes, String downloadLink) {
+    public Driver(long id, Product product, String driverId, String name, String version, String operatingSys, LocalDate releaseDate, double fileSizeMB, String downloadLink) {
         this.id = id;
         this.product = product;
         this.driverId = driverId;
@@ -56,18 +56,18 @@ public class Driver {
         this.operatingSys = operatingSys;
         this.downloadLink = downloadLink;
         this.releaseDate = releaseDate;
-        this.fileSizeBytes = fileSizeBytes;
+        this.fileSizeMB = fileSizeMB;
     }
 
 
-    public Driver(String name, Product product, String driverId, String version, String operatingSys, LocalDate releaseDate, Long fileSizeBytes, String downloadLink, Timestamp createdOn) {
+    public Driver(String name, Product product, String driverId, String version, String operatingSys, LocalDate releaseDate, double fileSizeMB, String downloadLink, Timestamp createdOn) {
         this.name = name;
         this.product = product;
         this.driverId = driverId;
         this.version = version;
         this.operatingSys = operatingSys;
         this.releaseDate = releaseDate;
-        this.fileSizeBytes = fileSizeBytes;
+        this.fileSizeMB = fileSizeMB;
         this.downloadLink = downloadLink;
         this.updatedOn = createdOn;
     }
@@ -112,12 +112,12 @@ public class Driver {
         this.releaseDate = releaseDate;
     }
 
-    public Long getFileSizeBytes() {
-        return fileSizeBytes;
+    public double getFileSizeMB() {
+        return fileSizeMB;
     }
 
-    public void setFileSizeBytes(Long fileSizeBytes) {
-        this.fileSizeBytes = fileSizeBytes;
+    public void setFileSizeMB(double setFileSizeMB) {
+        this.fileSizeMB = setFileSizeMB;
     }
 
     public String getOperatingSys() {
@@ -153,7 +153,7 @@ public class Driver {
                 ", operatingSys='" + operatingSys + '\'' +
                 ", downloadLink='" + downloadLink + '\'' +
                 ", releaseDate=" + releaseDate +
-                ", fileSizeBytes=" + fileSizeBytes +
+                ", fileSizeBytes=" + fileSizeMB +
                 ", createdOn=" + updatedOn +
                 '}';
     }

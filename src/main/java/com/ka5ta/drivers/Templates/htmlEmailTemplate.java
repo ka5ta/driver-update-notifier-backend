@@ -86,7 +86,7 @@ public class htmlEmailTemplate {
                                 tr().withStyle("padding: 8px; ").with(
                                         td(driver.getName()),
                                         td(a().withText(String.format("*%s*", driver.getDownloadLink()))),
-                                        td(driver.getFileSizeBytes().toString())
+                                        td(driver.getFileSizeMB() + " MB")
                                 )
                         )
                 ),

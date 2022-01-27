@@ -17,7 +17,7 @@ import static j2html.TagCreator.body;
 
 public class htmlEmailTemplate {
 
-    public static String createEmail(Product product, List<Driver> newDrivers, String distributionEmail) {
+    public static String generate(Product product, List<Driver> newDrivers, String distributionEmail) {
 
         // Body CSS style
         StringBuilder bodyStylesBuilder = new StringBuilder();
@@ -83,15 +83,17 @@ public class htmlEmailTemplate {
                 ).withStyle(bodyStyle),
                 table().withStyle(tableStyle).with(
                         tr().withStyle("padding: 8px; ").with(
-                                th("Driver name"),
+                                th("Driver name").withStyle("text-align: left"),
+                                th("Driver version").withStyle("text-align: left"),
                                 th("Driver Download link"),
                                 th("File Size")
                         ),
                         each(newDrivers, driver ->
                                 tr().withStyle("padding: 8px; ").with(
                                         td(driver.getName()),
-                                        td(a().withText(String.format("*%s*", driver.getDownloadLink()))),
-                                        td(driver.getFileSizeMB() + " MB")
+                                        td(driver.getVersion()),
+                                        td(a(driver.getDownloadLink()).attr("disabled")),
+                                        td(driver.getFileSizeMB() + " MB").withStyle("text-align: right")
                                 )
                         )
                 ),
@@ -108,7 +110,7 @@ public class htmlEmailTemplate {
 
         return htmlEmailTemplate;
     }
-    //todo create object that will hold title and template + unsubscribe button
+
 }
 
 

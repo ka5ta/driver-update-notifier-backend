@@ -5,7 +5,6 @@ import com.ka5ta.drivers.Entities.EmailProfile;
 import com.ka5ta.drivers.Entities.Product;
 import com.ka5ta.drivers.Repositories.SubscriptionRepository;
 import com.ka5ta.drivers.Templates.htmlEmailTemplate;
-import j2html.tags.ContainerTag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static j2html.TagCreator.*;
 import static j2html.TagCreator.body;
 
 @Service
@@ -57,7 +55,7 @@ public class EmailService {
         String title = "New drivers for product: " + product.getName();
 
         for (String distributionEmail : distributionEmails) {
-            String htmlText = htmlEmailTemplate.createEmail(product, newDrivers, distributionEmail);
+            String htmlText = htmlEmailTemplate.generate(product, newDrivers, distributionEmail);
 
             this.sendEmail(distributionEmail, title, htmlText);
         }

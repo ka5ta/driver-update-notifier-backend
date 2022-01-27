@@ -3,6 +3,7 @@ package com.ka5ta.drivers.Scrapers;
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
 import com.ka5ta.drivers.Records.ScrapedResults;
+import com.ka5ta.drivers.Utility.DownloadSizeBytesUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -35,7 +36,7 @@ import java.util.regex.Pattern;
 public class AsusLinkScraper implements LinkScraper {
     @Override
     public Boolean isLinkSupported(String link) {
-        return link.startsWith("https://www.asus.com/");
+        return link.startsWith("https://www.asus.com/") ;
     }
 
     @Override
@@ -54,16 +55,14 @@ public class AsusLinkScraper implements LinkScraper {
             driver.setDriverId(downloadJson.getString("Id"));
             //driver.setProduct(product);
             drivers.add(driver);
-            //todo Encode download link
             String downloadLink = downloadJson.getJSONObject("DownloadUrl").getString("Global");
-            //String encodedDownloadLink = URLEncoder.encode(downloadLink, StandardCharsets.UTF_8.name());
-            driver.setFileSizeBytes(getDownloadSizeInMB(downloadLink));
+            driver.setFileSizeMB(DownloadSizeBytesUtils.sizeInMB(downloadLink));
             driver.setDownloadLink(downloadLink);
         }
         return new ScrapedResults(drivers, asusProductDetails.productName(),"ASUS", asusProductDetails.productId());
     }
 
-    private List<JSONObject> getDownloadsJson (String productLink, AsusProductDetails asusProductDetails)
+    public List<JSONObject> getDownloadsJson (String productLink, AsusProductDetails asusProductDetails)
             throws JSONException, URISyntaxException, IOException, ExecutionException, InterruptedException, ParseException {
         //Get OS systems by specific card
 
@@ -73,7 +72,7 @@ public class AsusLinkScraper implements LinkScraper {
         for(Map.Entry<String, String> entry:operatingSystemIDs.entrySet() ){
             String key = entry.getKey();
             String value = entry.getValue();
-            List<JSONObject> downloadsJSONByOS = getDownloadsJSONByOS(productLink, key, value);
+            List<JSONObject> downloadsJSONByOS = getDownloadsJSONByOS(productLink, asusProductDetails, key, value);
             downloadsJson.addAll(downloadsJSONByOS);
         }
 
@@ -81,11 +80,11 @@ public class AsusLinkScraper implements LinkScraper {
     }
 
 
-    private List<JSONObject> getDownloadsJSONByOS(String productLink, String operatingSystemKey, String operatingSystemValue)
+    private List<JSONObject> getDownloadsJSONByOS(String productLink, AsusProductDetails asusProductDetails, String operatingSystemKey, String operatingSystemValue)
             throws IOException, ExecutionException, InterruptedException, URISyntaxException, ParseException, JSONException {
 
-        String productId = getAsusProductDetails(productLink).productId();
-        String productModel = getAsusProductDetails(productLink).productName();
+        String productId = asusProductDetails.productId();
+        String productModel = asusProductDetails.productName();
 
 
         //      Execute GET request    //
@@ -96,7 +95,12 @@ public class AsusLinkScraper implements LinkScraper {
         params.add(new BasicNameValuePair("pdid", productId));
         params.add(new BasicNameValuePair("model", productModel));
 
-        String allDriversLink = "https://www.asus.com/support/api/product.asmx/GetPDDrivers";
+        String allDriversLink="";
+        if(productLink.startsWith("https://www.asus.com/")) {
+            allDriversLink = "https://www.asus.com/support/api/product.asmx/GetPDDrivers";
+        }else if(productLink.startsWith("https://rog.asus.com/")){
+            allDriversLink = "https://rog.asus.com/support/webapi/product/GetPDDrivers";
+        }
 
         String response = createGetRequest(allDriversLink, params);
 
@@ -118,7 +122,7 @@ public class AsusLinkScraper implements LinkScraper {
         return driversJsonList;
     }
 
-    private String createGetRequest(String link, List<NameValuePair> params)
+    public String createGetRequest(String link, List<NameValuePair> params)
             throws URISyntaxException, ExecutionException, InterruptedException, IOException {
         // Create a Http Client
         CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
@@ -144,15 +148,16 @@ public class AsusLinkScraper implements LinkScraper {
     private AsusProductDetails getAsusProductDetails(String productLink)
             throws URISyntaxException, IOException, ExecutionException, InterruptedException {
 
-        String TestProductLink = "https://www.asus.com/Motherboards-Components/Motherboards/PRIME/PRIME-Z690-A-CSM/";
+        String testurl = "https://www.asus.com/Motherboards-Components/Motherboards/ProArt/ProArt-Z490-CREATOR-10G/HelpDesk_Download/";
         String response = Jsoup.connect(productLink).get().html();
 
         String regexProductId = "\"sku\":(\\s+)?(\\d+),";
-        String regexProductName = "\"@type\": \"Product\",(\\n|\\r|\\s+|\\t)\"@id\": \"(.*?)\",(\\n|\\r|\\s+|\\t)\"name\":(\\s+)?\"(.*?)\"";
+        String regexProductName = "\"@type\": \"Product\",(\\n|\\r|\\s+|\\t)\"name\":(\\s+)?\"(.*?)\",";
+        //String regexProductName = "\"@type\": \"Product\",(\\n|\\r|\\s+|\\t)\"@id\": \"(.*?)\",(\\n|\\r|\\s+|\\t)\"name\":(\\s+)?\"(.*?)\"";
 
 
         String productId = findRegex(regexProductId, 2, response);
-        String productName = findRegex(regexProductName, 5, response);
+        String productName = findRegex(regexProductName, 3, response);
 
         return new AsusProductDetails(productId,productName);
     }
@@ -230,7 +235,7 @@ public class AsusLinkScraper implements LinkScraper {
         return motherboardJsonPairs;
     }
 
-    private LocalDate parseStringToDate(String date) {
+    public LocalDate parseStringToDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         LocalDate formattedDate = LocalDate.parse(date, formatter);
         return formattedDate;

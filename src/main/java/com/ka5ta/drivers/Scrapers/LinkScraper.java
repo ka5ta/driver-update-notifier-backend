@@ -32,18 +32,6 @@ public interface LinkScraper {
      ScrapedResults performScrape (String productLink) throws Exception;
 
 
-     default Long getDownloadSizeInMB(String downloadLink) throws IOException, URISyntaxException {
-
-          URI uri = URIUtils.LinkEncoder(downloadLink);
-
-          HttpHead head = new HttpHead(uri);
-          CloseableHttpClient client = HttpClients.createDefault();
-          CloseableHttpResponse headResponse = client.execute(head);
-          String downloadSize =  headResponse.getHeaders("Content-Length")[0].getValue();
-
-          return Long.parseLong(downloadSize);
-     }
-
      default String findRegex(String regex, int groupNumber, String searchText) {
           Pattern pattern = Pattern.compile(regex);
           Matcher matcher = pattern.matcher(searchText);

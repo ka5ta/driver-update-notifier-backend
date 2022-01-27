@@ -104,10 +104,10 @@ public class MsiLinkScraper implements LinkScraper {
 
         // Find matching text for product_id and find product name
         String regexProductId = "product_id:(\\s+)?(\\d+),";
-        String regexProductName = "title:(\\s+)?\'(.*)\',";
+        String regexProductName = "category:(\\s+)?\'(.*)\',(\\n|\\r|\\s+|\\t)title:(\\s+)?\'(.*)\',";
 
         String resultProductId = findRegex(regexProductId, 2, response);
-        String resultProductName = findRegex(regexProductName, 2, response);
+        String resultProductName = findRegex(regexProductName, 5, response);
 
         return new MSIProductDetails(resultProductId, resultProductName);
     }

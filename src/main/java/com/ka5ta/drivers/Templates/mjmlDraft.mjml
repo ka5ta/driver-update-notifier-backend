@@ -1,0 +1,57 @@
+<mjml>
+    <mj-head>
+        <mj-preview>Drivers Subscriprion</mj-preview>
+        <mj-font name="Roboto" href="https://fonts.googleapis.com/css?family=Roboto:300,500"></mj-font>
+        <mj-attributes>
+            <mj-all font-family="Roboto, Helvetica, sans-serif"></mj-all>
+            <mj-text font-weight="300" font-size="15px" color="#616161" line-height="24px"></mj-text>
+            <mj-section background-color="#ffffff"></mj-section>
+            <mj-class name="title" font-family="Open Sans, Arial, sans-serif" color="#FFFFFF" font-size="30px" padding="0px" align="left" letter-spacing="5px" font-weight="bold" text-transform="uppercase"></mj-class>
+
+        </mj-attributes>
+    </mj-head>
+
+    <mj-body background-color="#bedae6">
+
+        <!-- Logo -->
+        <mj-section background-color="#5992fc" text-align="center" padding="40px">
+            <mj-column width="30%">
+                <mj-image padding="0px" width="100px" align="center" src="drawing-logo.png"></mj-image>
+            </mj-column>
+            <mj-column width="70%">
+                <mj-text mj-class="title"> <span style="color:#616161">Driver </span>Subscription</mj-text>
+            </mj-column>
+        </mj-section>
+
+        <!-- divider -->
+        <mj-section padding="0px">
+            <mj-column>
+                <mj-divider border-width="2px" border-color="#E0E0E0" padding="0px"></mj-divider>
+            </mj-column>
+        </mj-section>
+
+        <!-- Body text -->
+        <mj-section padding="30px">
+            <mj-column>
+                <mj-text align="center" font-size="18px" font-weight="500" text-transform="uppercase">
+                    Hello There!
+                </mj-text>
+
+                <!-- Body text -->
+                <mj-text align="center" padding="0">
+                    Thank you for subscribing to our Drivers Subscribtion website.
+                    You will be receiving the latest updates on new drivers for submitted products.
+                </mj-text>
+
+                <!-- Button -->
+                <mj-button align="center" background-color="#5992fc" color="#FFFFFF" href="#" font-family="Arial, sans-serif" font-weight="bold" font-size="16px" padding-top="50px">Go to website</mj-button>
+
+                <!-- Text -->
+                <mj-text align="center" font-size="12px" padding-top="10px">All Best, <br /> The Driver Subscription Team</mj-text>
+            </mj-column>
+        </mj-section>
+
+    </mj-body>
+</mjml>
+
+<!--https://mjml.io/try-it-live/qc0qGyxl0Tv-->

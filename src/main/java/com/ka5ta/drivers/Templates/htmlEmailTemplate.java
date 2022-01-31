@@ -104,7 +104,7 @@ public class htmlEmailTemplate {
         );
 
 
-        // HTML email body formatted
+        // HTML email body formatter
         String htmlEmailTemplate = htmlTextContainer.renderFormatted();
         System.out.println(htmlEmailTemplate);
 

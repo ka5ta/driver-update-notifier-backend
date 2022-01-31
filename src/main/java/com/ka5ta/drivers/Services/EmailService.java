@@ -60,4 +60,8 @@ public class EmailService {
             this.sendEmail(distributionEmail, title, htmlText);
         }
     }
+
+    public void sendWelcomeEmail(Product product, EmailProfile emailProfile){
+
+    }
 }

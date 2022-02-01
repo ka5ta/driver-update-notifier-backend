@@ -16,12 +16,15 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static j2html.TagCreator.*;
 
@@ -38,7 +41,8 @@ public class EmailController {
 
 
     @PostMapping("/subscribe")
-    public void createEmailProfile (@RequestBody SubscribeDTO dto){
+    public void createEmailProfile (@RequestBody SubscribeDTO dto)
+            throws IOException, ExecutionException, InterruptedException {
         subscriptionService.setSubscription(dto);
         //return new ResponseEntity(HttpStatus.CREATED);
     }

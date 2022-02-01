@@ -1,45 +1,47 @@
-<mjml>
+<mjml xmlns:th="http://www.w3.org/1999/xhtml">
     <mj-head>
         <mj-preview>Drivers Subscriprion</mj-preview>
         <mj-font name="Roboto" href="https://fonts.googleapis.com/css?family=Roboto:300,500"></mj-font>
         <mj-attributes>
             <mj-all font-family="Roboto, Helvetica, sans-serif"></mj-all>
             <mj-text font-weight="300" font-size="15px" color="#616161" line-height="24px"></mj-text>
-            <mj-section background-color="#ffffff"></mj-section>
-            <mj-class name="title" font-family="Open Sans, Arial, sans-serif" color="#FFFFFF" font-size="30px" padding="0px" align="left" letter-spacing="5px" font-weight="bold" text-transform="uppercase"></mj-class>
-
+            <mj-class name="title" font-family="Open Sans, Arial, sans-serif" color="#FFFFFF" font-size="30px" padding="13px 0px 0px 0px" align="left" letter-spacing="5px" font-weight="bold" text-transform="uppercase" line-height="0.8"></mj-class>
         </mj-attributes>
     </mj-head>
 
-    <mj-body background-color="#bedae6">
+    <mj-body background-color="#bedae6"  >
+        <mj-section padding="20px"></mj-section>
 
         <!-- Logo -->
-        <mj-section background-color="#5992fc" text-align="center" padding="40px">
-            <mj-column width="30%">
-                <mj-image padding="0px" width="100px" align="center" src="drawing-logo.png"></mj-image>
+        <mj-section background-color="#5992fc" padding="40px">
+            <mj-column width="30%" >"
+                <mj-image padding="0px" width="70px"  align="center" src="https://i.ibb.co/cLHNZbr/drawing-logo.png"></mj-image>
             </mj-column>
-            <mj-column width="70%">
+            <mj-column width="70%" vertical-align="middle" >
                 <mj-text mj-class="title"> <span style="color:#616161">Driver </span>Subscription</mj-text>
             </mj-column>
         </mj-section>
 
         <!-- divider -->
-        <mj-section padding="0px">
+        <mj-section  background-color="#ffffff" padding="0px">
             <mj-column>
                 <mj-divider border-width="2px" border-color="#E0E0E0" padding="0px"></mj-divider>
             </mj-column>
         </mj-section>
 
         <!-- Body text -->
-        <mj-section padding="30px">
+        <mj-section background-color="#ffffff" padding="30px">
             <mj-column>
                 <mj-text align="center" font-size="18px" font-weight="500" text-transform="uppercase">
-                    Hello There!
+
+                  !!!  //todo email is not sent to template !!!
+                    Hello <span th:value="${email}"></span>!
+
                 </mj-text>
 
                 <!-- Body text -->
                 <mj-text align="center" padding="0">
-                    Thank you for subscribing to our Drivers Subscribtion website.
+                    Thank you for subscribing to our Drivers Subscription website.
                     You will be receiving the latest updates on new drivers for submitted products.
                 </mj-text>
 
@@ -50,8 +52,10 @@
                 <mj-text align="center" font-size="12px" padding-top="10px">All Best, <br /> The Driver Subscription Team</mj-text>
             </mj-column>
         </mj-section>
+        <mj-section padding="20px"></mj-section>
 
     </mj-body>
 </mjml>
+
 
 <!--https://mjml.io/try-it-live/qc0qGyxl0Tv-->

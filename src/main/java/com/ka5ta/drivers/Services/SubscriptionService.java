@@ -7,12 +7,15 @@ import com.ka5ta.drivers.Repositories.ProductRepository;
 import com.ka5ta.drivers.Repositories.SubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 
 @Service
@@ -22,9 +25,11 @@ public class SubscriptionService {
     private SubscriptionRepository subscriptionRepo;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private EmailService emailService;
 
 
-    public void setSubscription(SubscribeDTO subDTO) {
+    public void setSubscription(SubscribeDTO subDTO) throws IOException, ExecutionException, InterruptedException {
         String email = subDTO.getEmail();
         Long productId = subDTO.getProductId();
 
@@ -38,6 +43,7 @@ public class SubscriptionService {
             products.add(product);
             EmailProfile newEmailProfile = new EmailProfile(email, products);
             subscriptionRepo.save(newEmailProfile);
+            emailService.sendWelcomeEmail(email);
         }
 
         if (emailProfile != null) {

@@ -8,44 +8,34 @@ import com.ka5ta.drivers.Templates.htmlEmailTemplate;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
+import org.springframework.web.servlet.ModelAndView;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.*;
 import java.util.concurrent.Future;
-
-import static j2html.TagCreator.body;
 
 @Service
 public class EmailService {
@@ -94,9 +84,12 @@ public class EmailService {
 
     public void sendWelcomeEmail(String email) throws ExecutionException, InterruptedException, IOException {
 
-        // Get path to welcome email template
+        /*// Get path to welcome email template
         Path path = Path.of("src/main/resources/email/mjmlDraft.mjml");
-        String template = Files.readString(path, StandardCharsets.UTF_8);
+        String template = Files.readString(path, StandardCharsets.UTF_8);*/
+
+        // Create mjml template with Thymeleaf - replace email var with user email
+        String mjmlBody = this.parseThymeleafTemplate(email);
 
         // Convert mjml email template to html
         CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
@@ -104,21 +97,38 @@ public class EmailService {
 
         HttpPost httpPost = new HttpPost("http://127.0.0.1:1410");
         List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("mjml", template));
-        params.add(new BasicNameValuePair("email", email));
+        params.add(new BasicNameValuePair("mjml", mjmlBody));
+
         httpPost.setEntity(new UrlEncodedFormEntity(params));
+        httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
         Future<HttpResponse> futureResponse = httpclient.execute(httpPost, null);
         HttpResponse response = futureResponse.get();
         HttpEntity responseEntity = response.getEntity();
-        String body = EntityUtils.toString(responseEntity);
+        String htmlBody = EntityUtils.toString(responseEntity);
 
         // Create HTML template title
         String title = "Thank you for subscribing to our service";
 
         //Send email
-        this.sendEmail(email, title, body);
+        this.sendEmail(email, title, htmlBody);
         httpclient.close();
     }
 
+    private static String parseThymeleafTemplate(String email)  {
+
+        // Get name from email
+        String name = email.substring(0, email.indexOf("@"));
+
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setPrefix("email/");
+
+        TemplateEngine templateEngine = new TemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+
+        // Search for var name on template and replace it with user's name
+        Context context = new Context();
+        context.setVariable("name", name);
+        return templateEngine.process("mjmlDraft.mjml", context);
+    }
 }

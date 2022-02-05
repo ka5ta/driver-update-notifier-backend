@@ -34,9 +34,9 @@ public class SubscriptionService {
         Long productId = subDTO.getProductId();
 
         Product product = productRepository.findById(productId).orElseThrow();
+        EmailProfile emailProfile = subscriptionRepo.findByEmail(email);
 
         //check if email doesn't subscribe already
-        EmailProfile emailProfile = subscriptionRepo.findByEmail(email);
         if (emailProfile == null) {
             //create new email subscription
             List<Product> products = new ArrayList<>();
@@ -44,16 +44,16 @@ public class SubscriptionService {
             EmailProfile newEmailProfile = new EmailProfile(email, products);
             subscriptionRepo.save(newEmailProfile);
             emailService.sendWelcomeEmail(email);
-        }
+        }else{
 
-        if (emailProfile != null) {
-            List<Product> products = emailProfile.getProducts();
-            Optional<Product> foundProduct = products.stream()
+            List<Product> profileProducts = emailProfile.getProducts();
+                    /*
+                    Optional<Product> foundProduct = profileProducts.stream()
                     .filter(existingProduct -> existingProduct.equals(product))
-                    .findAny();
+                    .findAny();*/
 
-            if(foundProduct.isEmpty()){
-                products.add(product);
+            if( ! profileProducts.contains(product)){
+                profileProducts.add(product);
                 //update subscription
                 subscriptionRepo.save(emailProfile);
             }
@@ -68,7 +68,6 @@ public class SubscriptionService {
         if(profileProducts.contains(productToRemove)) {
             profileProducts.remove(productToRemove);
             System.out.println("product "+ productToRemove.getId() + " is removed.");
-            profile.setProducts(profileProducts);
             subscriptionRepo.save(profile);
             System.out.println("Email profile saved");
         }else{

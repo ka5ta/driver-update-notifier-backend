@@ -1,6 +1,5 @@
 package com.ka5ta.drivers.Services;
 
-import com.ka5ta.drivers.Controllers.EmailController;
 import com.ka5ta.drivers.Entities.Driver;
 import com.ka5ta.drivers.Entities.Product;
 import com.ka5ta.drivers.Records.ScrapedResults;
@@ -8,19 +7,10 @@ import com.ka5ta.drivers.Records.Scraper;
 import com.ka5ta.drivers.Repositories.ProductRepository;
 import com.ka5ta.drivers.Scrapers.AsusLinkScraper;
 import com.ka5ta.drivers.Scrapers.AsusRogScraper;
-import com.ka5ta.drivers.Scrapers.LinkScraper;
 import com.ka5ta.drivers.Scrapers.MsiLinkScraper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -52,7 +42,6 @@ public class DriverService {
         if (Objects.isNull(product)) {
             product = new Product(
                     supportURL,
-                    productLink,
                     "product test id",
                     "product test name",
                     "product test manufacturer",
@@ -61,104 +50,58 @@ public class DriverService {
             );
         }
 
-        List<Driver> newDrivers = new ArrayList<>();
-
-        if (product.getLastScraped() == null || !product.getLastScraped().toLocalDateTime().toLocalDate().isEqual(LocalDate.now())) {
-            Scraper scraper = getScraper(supportURL);
-            ScrapedResults scrapedResults = scraper.linkScraper().performScrape(supportURL);
-            //Getting drivers list
-            List<Driver> scrapedDrivers = scrapedResults.drivers();
-            //Updating product
-            product.setLastScraped(new Timestamp(System.currentTimeMillis()));
-            product.setName(scrapedResults.productName());
-            product.setManufacturer(scraper.productManufacturer());
-            product.setVendorId(scrapedResults.vendorId());
-            Product toUpdateProduct = product;
-
-            scrapedDrivers.forEach(scrapedDriver -> {
-                String scrapedDriverDriverId= scrapedDriver.getDriverId();
-                List<Driver> existingDrivers = toUpdateProduct.getDrivers();
-
-                Optional<Driver> matchingDriver = existingDrivers.stream()
-                        .filter(driver -> driver.getDriverId().equals(scrapedDriverDriverId))
-                        .findAny();
-
-                if(matchingDriver.isEmpty()){
-                    existingDrivers.add(scrapedDriver);
-                    newDrivers.add(scrapedDriver);
-                }else{
-                    //todo if any information changed
-                }
-            });
-
-
-            List<Driver> drivers = toUpdateProduct.getDrivers();
-            drivers.forEach(driver->driver.setProduct(toUpdateProduct));
-
-            productRepository.save(toUpdateProduct);
-
-            // Send email with new drivers list
-           // emailService.SendEmailWithNewDriverList(toUpdateProduct, newDrivers );
-            return toUpdateProduct;
-        }
-
-
-        if(product.getLastScraped().toLocalDateTime().toLocalDate().isEqual(LocalDate.now())) {
-           //emailService.SendEmailWithNewDriverList(product, product.getDrivers() );
-            emailService.sendWelcomeEmail("kasta.urbanska@gmail.com");
-            return product;
+        if (product.isScrapeNeeded()) {
+            return scrapeAndUpdateProduct(supportURL, product);
         }
 
         return product;
+
     }
 
+    private Product scrapeAndUpdateProduct(String supportURL, Product product) throws Exception {
+        Scraper scraper = getScraper(supportURL);
+        ScrapedResults scrapedResults = scraper.linkScraper().performScrape(supportURL);
+        //Getting drivers list
+        List<Driver> scrapedDrivers = scrapedResults.drivers();
+        //Updating product
+        product.setLastScraped(new Timestamp(System.currentTimeMillis()));
+        product.setName(scrapedResults.productName());
+        product.setManufacturer(scraper.productManufacturer());
+        product.setVendorId(scrapedResults.vendorId());
+        Product toUpdateProduct = product;
 
-/*    public List<Driver> getDriversForProduct(String supportURL) throws Exception {
+        List<Driver> newDrivers = new ArrayList<>();
 
-        Product product = productRepository.findBySupportLink(supportURL);
-        if (Objects.isNull(product)) {
-            product = new Product(
-                    supportURL,
-                    productLink,
-                    "product test name",
-                    "product test manufacturer",
-                    new ArrayList<>(),
-                    null
-            );
+        scrapedDrivers.forEach(scrapedDriver -> {
+            List<Driver> existingDrivers = toUpdateProduct.getDrivers();
+            String scrapedDriverDriverId = scrapedDriver.getDriverId();
+
+
+            Optional<Driver> matchingDriver = existingDrivers.stream()
+                    .filter(driver -> driver.getDriverId().equals(scrapedDriverDriverId))
+                    .findAny();
+
+            if (matchingDriver.isEmpty()) {
+                existingDrivers.add(scrapedDriver);
+                newDrivers.add(scrapedDriver);
+
+            } else {
+                //todo if any information changed
+            }
+        });
+
+        List<Driver> drivers = toUpdateProduct.getDrivers();
+        // The relation has to be updated on Owning side or hibernate will not save changes to database
+        drivers.forEach(driver -> driver.setProduct(toUpdateProduct));
+
+        productRepository.save(toUpdateProduct);
+
+        // Send email with new drivers list
+        if(newDrivers.size() > 0 ){
+            emailService.SendEmailWithNewDriverList(toUpdateProduct, newDrivers);
         }
-
-        List<Driver> drivers = new ArrayList<>();
-
-        if (product.getLastScraped() == null || !product.getLastScraped().isEqual(LocalDate.now())) {
-            List<Driver> scrapedDrivers = getScraper(supportURL).getDownloads(supportURL, product);
-            product.setLastScraped(LocalDate.now());
-            Product toUpdateProduct = product;
-
-            scrapedDrivers.forEach(scrapedDriver -> {
-                String scrapedVendorId = scrapedDriver.getVendorId();
-                List<Driver> existingDrivers = toUpdateProduct.getDrivers();
-
-                Optional<Driver> matchingDriver = existingDrivers.stream()
-                        .filter(driver -> driver.getVendorId().equals(scrapedVendorId))
-                        .findAny();
-
-                if(matchingDriver.isEmpty()){
-                    existingDrivers.add(scrapedDriver);
-                }else{
-                    //todo if any information changed
-                }
-            });
-            productRepository.save(toUpdateProduct);
-            drivers = toUpdateProduct.getDrivers();
-        }
-
-
-        if (product.getLastScraped().isEqual(LocalDate.now())) {
-            return product.getDrivers();
-        }
-
-        return drivers;
-    }*/
+        return toUpdateProduct;
+    }
 
     private Scraper getScraper(String supportURL) {
         if (asusLinkScraper.isLinkSupported(supportURL)) {
@@ -166,7 +109,7 @@ public class DriverService {
         } else if (msiLinkScraper.isLinkSupported(supportURL)) {
             return new Scraper(msiLinkScraper, "MSI");
         } else if (asusRogLinkScraper.isLinkSupported(supportURL)) {
-                return new Scraper(asusRogLinkScraper, "ASUS ROG");
+            return new Scraper(asusRogLinkScraper, "ASUS ROG");
         } else {
             return null;
         }

@@ -1,9 +1,6 @@
 package com.ka5ta.drivers.Services;
 
-import com.ka5ta.drivers.DriversApplication;
-
 import com.ka5ta.drivers.Entities.Product;
-import com.ka5ta.drivers.Repositories.DriverRepository;
 import com.ka5ta.drivers.Repositories.ProductRepository;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -26,18 +23,19 @@ public class UpdateDriversService {
 
 //private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    //todo schedule update drivers
-    //@Scheduled(cron = "0 */5 * ? * *")
+    ////todo schedule update drivers - spread it  throughout the day
+    //@Scheduled(cron = "0 0 7 *  *  *")
+    @Scheduled(cron = "0 52 00 *  *  *")
     private void runUpdateDrivers() {
         updateDrivers();
         log.info("Drivers are now updated");
     }
 
     private void updateDrivers() {
-        List<String> downloadLinks = productRepository.getDownloadLinks();
-        downloadLinks.forEach(link -> {
+        List<Product> allProducts = productRepository.findAll();
+        allProducts.forEach(product -> {
             try {
-                Product productFromLink = driverService.getProductFromLink(link);
+                Product productFromLink = driverService.getProductFromLink(product.getSupportLink());
                 log.info(productFromLink.getName() + " was updated");
             } catch (Exception e) {
                 e.printStackTrace();

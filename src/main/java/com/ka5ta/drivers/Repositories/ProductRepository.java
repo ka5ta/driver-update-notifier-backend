@@ -11,7 +11,8 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
 
     Product findBySupportLink (String supportLink);
     Product getById (Long id);
+    List<Product> findAll();
     @Query(value = "SELECT p.supportLink FROM Product p")
-    List<String> getDownloadLinks();
+    List<String> getSupportLinks();
 
 }
